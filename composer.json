@@ -1,12 +1,12 @@
 {
-  "name": "unetway/robokassa",
+  "name": "temandroid/robokassa",
   "description": "Пакет для работы с Робокассой",
   "keywords": [
     "robokassa",
     "recurrent",
     "payment"
   ],
-  "homepage": "https://github.com/unetway/robokassa",
+  "homepage": "https://github.com/temandroid/robokassa",
   "license": "MIT",
   "authors": [
     {
