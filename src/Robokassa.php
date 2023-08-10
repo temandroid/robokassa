@@ -128,8 +128,8 @@ class Robokassa
      */
     public function generateLink($params): string
     {
-        if (empty($params['InvoiceId'])) {
-            throw new Exception('Param InvoiceId is not defined');
+        if (empty($params['InvId'])) {
+            throw new Exception('Param InvId is not defined');
         }
 
         if (empty($params['OutSum'])) {
@@ -144,7 +144,7 @@ class Robokassa
 
         $signatureParams = [
             'OutSum' => $params['OutSum'],
-            'InvoiceId' => $params['InvoiceId'],
+            'InvId' => $params['InvId'],
         ];
 
         if (!empty($params['OutSumCurrency'])) {
@@ -365,20 +365,20 @@ class Robokassa
      * Необходимо помнить, что операция инициируется не в момент ухода пользователя на оплату,
      * а позже – после подтверждения его платежных реквизитов,
      * т.е. Вы вполне можете не находить операцию, которая по Вашему мнению уже должна начаться.
-     * @param $invoiceID
+     * @param $invID
      * @return array|mixed
      * @throws Exception
      */
-    public function opState($invoiceID): array
+    public function opState($invID): array
     {
-        if (empty($invoiceID)) {
-            throw new Exception('Param invoiceID is not defined');
+        if (empty($invID)) {
+            throw new Exception('Param invID is not defined');
         }
 
         $query = http_build_query([
             'MerchantLogin' => $this->getLogin(),
-            'InvoiceID' => $invoiceID,
-            'Signature' => $this->signatureState($invoiceID)
+            'InvID' => $invID,
+            'Signature' => $this->signatureState($invID)
         ]);
 
         $url = $this->getWebServiceUrl('OpState', $query);
@@ -392,9 +392,9 @@ class Robokassa
      * @param $invoiceID
      * @return string
      */
-    private function signatureState($invoiceID): string
+    private function signatureState($invID): string
     {
-        return hash($this->getHashType(), "{$this->getLogin()}:$invoiceID:{$this->getPassword2()}");
+        return hash($this->getHashType(), "{$this->getLogin()}:$invID:{$this->getPassword2()}");
     }
 
     /**
@@ -407,18 +407,18 @@ class Robokassa
      * @return false|string
      * @throws Exception
      */
-    public function recurrent($outSum, $invoiceID, $previousInvoiceID, $paramsOther)
+    public function recurrent($outSum, $invID, $previousInvID, $paramsOther)
     {
         if (empty($outSum)) {
             throw new Exception('Param outSum is not defined');
         }
 
-        if (empty($invoiceID) || $invoiceID === 0) {
-            throw new Exception('Param invoiceID is not defined');
+        if (empty($invID) || $invID === 0) {
+            throw new Exception('Param invID is not defined');
         }
 
-        if (empty($previousInvoiceID) || $previousInvoiceID === 0) {
-            throw new Exception('Param previousInvoiceID is not defined');
+        if (empty($previousInvID) || $previousInvID === 0) {
+            throw new Exception('Param previousInvID is not defined');
         }
 
         if (!empty($paramsOther)) {
@@ -437,13 +437,13 @@ class Robokassa
 
         $signatureValue = $this->generateSignature([
             'OutSum' => $outSum,
-            'InvoiceID' => $invoiceID,
+            'InvID' => $invID,
         ]);
 
         $paramsRequired = [
             'MerchantLogin' => $this->getLogin(),
-            'InvoiceID' => $invoiceID,
-            'PreviousInvoiceID' => $previousInvoiceID,
+            'InvID' => $invID,
+            'PreviousInvID' => $previousInvID,
             'SignatureValue' => $signatureValue,
             'OutSum' => $outSum,
         ];
@@ -458,7 +458,7 @@ class Robokassa
         if ($response->getStatusCode() === 200) {
             $res = $response->getBody()->getContents();
 
-            if ($res === 'OK' . $invoiceID) {
+            if ($res === 'OK' . $invID) {
                 return $res;
             }
         }
@@ -565,7 +565,7 @@ class Robokassa
         $required = [
             $this->getLogin(),
             $params['OutSum'],
-            $params['InvoiceID'],
+            $params['InvId'],
             $this->getPassword1(),
         ];
 
